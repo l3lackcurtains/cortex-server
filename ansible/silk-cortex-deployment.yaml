@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: silk-cortex
+  namespace: default
+  labels:
+    app: silk-cortex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: silk-cortex
+  template:
+    metadata:
+      labels:
+        app: silk-cortex
+    spec:
+      containers:
+        - name: silk-cortex
+          image: gcr.io/citric-lead-450721-v2/silk-cortex:1.0.0
+          ports:
+            - containerPort: 39281
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Equal"
+          value: "present"
+          effect: "NoSchedule"

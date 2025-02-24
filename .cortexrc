@@ -1,0 +1,2 @@
+apiServerHost: 0.0.0.0
+enableCors: true

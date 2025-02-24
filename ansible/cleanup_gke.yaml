@@ -1,0 +1,51 @@
+---
+- name: Cleanup GKE Cluster and Silk Cortex Resources
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    project_id: "citric-lead-450721-v2"
+    cluster_name: "silk-cortex-cluster"
+    zone: "us-central1-a"
+    node_pool_name: "gpu-pool"
+
+  tasks:
+    - name: Delete Silk Cortex Deployment
+      kubernetes.core.k8s:
+        state: absent
+        namespace: default
+        src: ./silk-cortex-deployment.yaml
+      ignore_errors: true
+
+    - name: Delete Silk Cortex Service
+      kubernetes.core.k8s:
+        state: absent
+        namespace: default
+        src: ./silk-cortex-service.yaml
+      ignore_errors: true
+
+    - name: Delete GPU-enabled node pool
+      shell: |
+        gcloud container node-pools delete {{ node_pool_name }} \
+          --cluster {{ cluster_name }} \
+          --zone {{ zone }} \
+          --project {{ project_id }} --quiet
+      ignore_errors: true
+
+    - name: Delete default node pool if it still exists
+      shell: |
+        gcloud container node-pools delete default-pool \
+          --cluster {{ cluster_name }} \
+          --zone {{ zone }} \
+          --project {{ project_id }} --quiet
+      ignore_errors: true
+
+    - name: Delete GKE cluster
+      google.cloud.gcp_container_cluster:
+        name: "{{ cluster_name }}"
+        project: "{{ project_id }}"
+        location: "{{ zone }}"
+        state: absent
+        auth_kind: application
+      ignore_errors: true

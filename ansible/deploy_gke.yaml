@@ -1,0 +1,83 @@
+---
+- name: Create GKE Cluster and Deploy Silk Cortex Resources
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    project_id: "citric-lead-450721-v2"
+    cluster_name: "silk-cortex-cluster"
+    zone: "us-central1-a"
+    initial_node_count: 1
+    machine_type: "g2-standard-4"
+    node_pool_name: "gpu-pool"
+    accelerator_type: "nvidia-l4"
+    accelerator_count: 1
+
+  tasks:
+    - name: Create GKE cluster
+      google.cloud.gcp_container_cluster:
+        name: "{{ cluster_name }}"
+        project: "{{ project_id }}"
+        location: "{{ zone }}"
+        initial_node_count: "{{ initial_node_count }}"
+        node_config:
+          machine_type: "{{ machine_type }}"
+        auth_kind: application
+      register: gke_cluster
+
+    - name: Create GPU-enabled node pool
+      google.cloud.gcp_container_node_pool:
+        name: "{{ node_pool_name }}"
+        cluster: "{{ cluster_name }}"
+        project: "{{ project_id }}"
+        location: "{{ zone }}"
+        initial_node_count: "{{ initial_node_count }}"
+        node_config:
+          machine_type: "{{ machine_type }}"
+          accelerators:
+            - accelerator_count: "{{ accelerator_count }}"
+              accelerator_type: "{{ accelerator_type }}"
+          oauth_scopes:
+            - https://www.googleapis.com/auth/cloud-platform
+        management:
+          auto_upgrade: true
+          auto_repair: true
+        auth_kind: application
+      when: gke_cluster is changed
+
+    - name: Get cluster credentials
+      shell: |
+        gcloud container clusters get-credentials {{ cluster_name }} \
+          --zone {{ zone }} \
+          --project {{ project_id }}
+      register: get_credentials
+      when: gke_cluster is changed
+
+    - name: Deploy Silk Cortex Deployment manifest
+      kubernetes.core.k8s:
+        state: present
+        src: ./silk-cortex-deployment.yaml
+        namespace: default
+      register: deploy_deployment
+
+    - name: Deploy Silk Cortex Service manifest
+      kubernetes.core.k8s:
+        state: present
+        src: ./silk-cortex-service.yaml
+        namespace: default
+      register: deploy_service
+
+    - name: Deploy Caddy config
+      kubernetes.core.k8s:
+        state: present
+        src: ./caddy-config.yaml
+        namespace: default
+      register: deploy_caddy_config
+
+    - name: Deploy Caddy Deployment
+      kubernetes.core.k8s:
+        state: present
+        src: ./caddy-deployment.yaml
+        namespace: default
+      register: deploy_caddy_deployment

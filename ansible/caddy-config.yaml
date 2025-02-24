@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddy-config
+data:
+  Caddyfile: |
+    llm1.netvrk.co {
+        reverse_proxy silk-cortex-service:3939
+        tls {
+            issuer acme
+        }
+    }
