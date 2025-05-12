@@ -1,0 +1,33 @@
+---
+- name: Cleanup GKE Cluster and Silk Resources
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Deploy NVIDIA GPU Drivers
+      kubernetes.core.k8s:
+        state: present
+        src: https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+      register: gpu_driver
+
+    - name: Deploy Silk Deployment
+      kubernetes.core.k8s:
+        state: absent
+        src: ./silk-deployment.yaml
+        namespace: default
+      register: silk_deployment
+
+    - name: Deploy Caddy Config
+      kubernetes.core.k8s:
+        state: present
+        src: ./caddy-config.yaml
+        namespace: default
+      register: caddy_config
+
+    - name: Deploy Caddy Deployment
+      kubernetes.core.k8s:
+        state: present
+        src: ./caddy-deployment.yaml
+        namespace: default
+      register: caddy_deployment

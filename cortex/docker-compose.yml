@@ -1,0 +1,20 @@
+services:
+  cortex:
+    container_name: cortex
+    build: .
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ./cortex_data:/root/cortexcpp
+      - ./custom_models:/root/cortexcpp/custom_models
+    ports:
+      - 5151:39281
+    stdin_open: true
+    tty: true
+    restart: unless-stopped

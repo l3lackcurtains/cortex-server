@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: silk-app
+  namespace: default
+  labels:
+    app: silk-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: silk-app
+  template:
+    metadata:
+      labels:
+        app: silk-app
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+      restartPolicy: Always
+      containers:
+        - name: llama-cpp
+          image: gcr.io/citric-lead-450721-v2/silk-llama.cpp:1.0.0
+          ports:
+            - containerPort: 3939
+          env:
+            - name: LLAMA_ARG_HOST
+              value: "0.0.0.0"
+            - name: LLAMA_ARG_PORT
+              value: "3939"
+            - name: LLAMA_ARG_MODEL
+              value: "/models/netvrkai-8b.gguf"
+            - name: LLAMA_ARG_CTX_SIZE
+              value: "32768"
+            - name: LLAMA_ARG_N_PARALLEL
+              value: "12"
+            - name: LLAMA_ARG_N_GPU_LAYERS
+              value: "99"
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              nvidia.com/gpu: 1
+              cpu: "1"
+              memory: "4Gi"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: silk-service
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: silk-app
+  ports:
+    - protocol: TCP
+      port: 3939
+      targetPort: 3939

@@ -5,8 +5,12 @@ metadata:
 data:
   Caddyfile: |
     llm1.netvrk.co {
-        reverse_proxy silk-cortex-service:3939
+        reverse_proxy silk-service:3939
         tls {
             issuer acme
         }
+    }
+
+    :8080 {
+        reverse_proxy silk-service:3939
     }

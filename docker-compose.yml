@@ -1,19 +1,41 @@
 services:
-  cortex:
-    container_name: cortex
-    build: .
-    runtime: nvidia
+  llama.cpp:
+    expose:
+      - 5555
+    image: gcr.io/citric-lead-450721-v2/silk-llama.cpp:1.0.0
+    environment:
+      LLAMA_ARG_HOST: 0.0.0.0
+      LLAMA_ARG_PORT: 5555
+      LLAMA_ARG_MODEL: /models/netvrkai-8b.gguf
+      LLAMA_ARG_CTX_SIZE: 32768
+      LLAMA_ARG_N_PARALLEL: 12
+      LLAMA_ARG_N_GPU_LAYERS: 99
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
-    volumes:
-      - ./cortex_data:/root/cortexcpp
-    ports:
-      - 5151:39281
-    stdin_open: true
-    tty: true
+      restart_policy:
+        condition: on-failure
+    networks:
+      - llama
+  caddy:
+    image: caddy:latest
     restart: unless-stopped
+    ports:
+      # - "80:80"
+      # - "443:443"
+      # - "443:443/udp"
+      - 5555:5555
+    volumes:
+      - ./conf:/etc/caddy
+      - ./volumes/caddy_data:/data
+      - ./volumes/caddy_config:/config
+    networks:
+      - llama
+
+networks:
+  llama:
+    driver: bridge

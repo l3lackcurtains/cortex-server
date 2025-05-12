@@ -1,12 +1,22 @@
-# Cortex AI Deployment with Ansible
+### Steps to deploy through ansible
 
-This documentation covers the deployment of Cortex AI using Ansible automation.
+```bash
+# Setup ansible
+pip install ansible
+ansible-galaxy collection install google.cloud community.kubernetes
 
-## Prerequisites
+# Login to GCP
+gcloud auth login
+gcloud config set project citric-lead-450721-v2
 
-- Ansible installed on your machine
-- Docker installed on target machines
-- NVIDIA drivers and CUDA toolkit installed on target machines
-- SSH access to target machines
+# Deploy cluster with llama cpp and caddy
+ansible-playbook gke_deploy.yaml
+# Cleanup llama cpp and caddy
+ansible-playbook gke_cleanup.yaml
+```
 
-## Project Structure
+### Scaling the node pool
+
+```bash
+gcloud container clusters update silk-cluster --enable-autoscaling --min-nodes=1 --max-nodes=3 --node-pool=gpu-pool
+```

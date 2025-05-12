@@ -1,14 +1,13 @@
 ---
-- name: Create GKE Cluster and Deploy Silk Cortex Resources
+- name: Create GKE Cluster and Deploy Silk Resources
   hosts: localhost
   connection: local
   gather_facts: false
 
   vars:
     project_id: "citric-lead-450721-v2"
-    cluster_name: "silk-cortex-cluster"
-    zone: "us-central1-a"
-    initial_node_count: 1
+    cluster_name: "silk-cluster"
+    zone: "us-west1-c"
     machine_type: "g2-standard-4"
     node_pool_name: "gpu-pool"
     accelerator_type: "nvidia-l4"
@@ -20,20 +19,33 @@
         name: "{{ cluster_name }}"
         project: "{{ project_id }}"
         location: "{{ zone }}"
-        initial_node_count: "{{ initial_node_count }}"
+        initial_node_count: 1
         node_config:
           machine_type: "{{ machine_type }}"
+          disk_size_gb: 256
         auth_kind: application
       register: gke_cluster
 
-    - name: Create GPU-enabled node pool
-      google.cloud.gcp_container_node_pool:
-        name: "{{ node_pool_name }}"
-        cluster: "{{ cluster_name }}"
+    - name: Check if GPU-enabled node pool exists
+      google.cloud.gcp_container_node_pool_info:
+        cluster: { name: "{{ cluster_name }}" }
         project: "{{ project_id }}"
         location: "{{ zone }}"
-        initial_node_count: "{{ initial_node_count }}"
-        node_config:
+        auth_kind: application
+      register: existing_node_pools
+
+    - name: Create GPU-enabled node pool if absent
+      google.cloud.gcp_container_node_pool:
+        name: "{{ node_pool_name }}"
+        cluster: { name: "{{ cluster_name }}" }
+        project: "{{ project_id }}"
+        location: "{{ zone }}"
+        initial_node_count: 1
+        autoscaling:
+          enabled: true
+          min_node_count: 1
+          max_node_count: 2
+        config:
           machine_type: "{{ machine_type }}"
           accelerators:
             - accelerator_count: "{{ accelerator_count }}"
@@ -44,7 +56,8 @@
           auto_upgrade: true
           auto_repair: true
         auth_kind: application
-      when: gke_cluster is changed
+        state: present
+      when: existing_node_pools.resources | length == 0
 
     - name: Get cluster credentials
       shell: |
@@ -54,30 +67,30 @@
       register: get_credentials
       when: gke_cluster is changed
 
-    - name: Deploy Silk Cortex Deployment manifest
+    - name: Deploy NVIDIA GPU Drivers
       kubernetes.core.k8s:
         state: present
-        src: ./silk-cortex-deployment.yaml
-        namespace: default
-      register: deploy_deployment
+        src: https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
+      register: gpu_driver
+      when: existing_node_pools.resources | length == 0
 
-    - name: Deploy Silk Cortex Service manifest
+    - name: Deploy Silk Deployment
       kubernetes.core.k8s:
         state: present
-        src: ./silk-cortex-service.yaml
+        src: ./silk-deployment.yaml
         namespace: default
-      register: deploy_service
+      register: silk_deployment
 
-    - name: Deploy Caddy config
+    - name: Deploy Caddy Config
       kubernetes.core.k8s:
         state: present
         src: ./caddy-config.yaml
         namespace: default
-      register: deploy_caddy_config
+      register: caddy_config
 
     - name: Deploy Caddy Deployment
       kubernetes.core.k8s:
         state: present
         src: ./caddy-deployment.yaml
         namespace: default
-      register: deploy_caddy_deployment
+      register: caddy_deployment

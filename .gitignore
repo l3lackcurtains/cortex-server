@@ -2,4 +2,5 @@
 cortex_data
 custom_models
 node_modules
-custom_models.env
+models
+.env

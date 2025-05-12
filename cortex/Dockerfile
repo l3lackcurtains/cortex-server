@@ -10,15 +10,14 @@ COPY .cortexrc /root/.cortexrc
 COPY ./custom_models/ ./custom_models/
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh 
 
-# Start cortex server, install engine, configure everything, and stop server
+# Start cortex server
 RUN cortex start
 
+# Install the engine
 RUN cortex engines install llama-cpp
 
-
 # Import the model
-RUN cortex models import --model_id Deepseek-nexa --model_path /root/cortexcpp/custom_models/Deepseek-nexa.gguf
-
+RUN cortex models import --model_id netvrkai-8b --model_path /root/cortexcpp/custom_models/netvrkai-8b.gguf
 
 EXPOSE 39281
 

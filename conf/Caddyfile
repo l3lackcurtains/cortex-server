@@ -1,0 +1,5 @@
+:5555 {
+    reverse_proxy llama.cpp:5555  {
+        lb_policy round_robin
+    }
+}
