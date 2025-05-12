@@ -5,8 +5,8 @@
   gather_facts: false
 
   vars:
-    project_id: "citric-lead-450721-v2"
-    cluster_name: "silk-cluster"
+    project_id: "rack-lead"
+    cluster_name: "rack-cluster"
     zone: "us-west1-c"
     machine_type: "g2-standard-4"
     node_pool_name: "gpu-pool"
@@ -77,7 +77,7 @@
     - name: Deploy Silk Deployment
       kubernetes.core.k8s:
         state: present
-        src: ./silk-deployment.yaml
+        src: ./rack-deployment.yaml
         namespace: default
       register: silk_deployment
 

@@ -45,7 +45,7 @@ spec:
       protocol: TCP
       port: 443
       targetPort: 443
-    - name: silk-http
+    - name: rack-http
       protocol: TCP
       port: 8080
       targetPort: 8080

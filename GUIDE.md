@@ -4,17 +4,17 @@
 
 ```bash
 # Build the Docker Image
-docker build -t silk-cortex .
+docker build -t rack-cortex .
 # Run the Docker Container
-docker run --name silk-cortex -p 3939:39281 silk-cortex
+docker run --name rack-cortex -p 3939:39281 rack-cortex
 # Test the Docker Container
 curl -X POST http://localhost:3939/v1/models/start -H "Content-Type: application/json" -d '{"model": "silkai-8b"}'
 # Stop the Docker Container
-docker stop silk-cortex
+docker stop rack-cortex
 # Remove the Docker Container
-docker rm silk-cortex
+docker rm rack-cortex
 # Remove the Docker Image
-docker rmi silk-cortex
+docker rmi rack-cortex
 ```
 
 ## Push Docker Image to GCR
@@ -24,8 +24,8 @@ gcloud auth login
 gcloud config set project PROJECT_ID
 gcloud auth configure-docker
 docker login gcr.io
-docker tag silk-cortex gcr.io/citric-lead-450721-v2/silk-cortex:1.0.0
-docker push gcr.io/citric-lead-450721-v2/silk-cortex:1.0.0
+docker tag rack-cortex gcr.io/rack-lead/rack-cortex:1.0.0
+docker push gcr.io/rack-lead/rack-cortex:1.0.0
 ```
 
 ## Ansible Commands

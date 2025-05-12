@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: silk-app
+  name: rack-app
   namespace: default
   labels:
-    app: silk-app
+    app: rack-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: silk-app
+      app: rack-app
   template:
     metadata:
       labels:
-        app: silk-app
+        app: rack-app
     spec:
       nodeSelector:
         cloud.google.com/gke-accelerator: nvidia-l4
       restartPolicy: Always
       containers:
         - name: llama-cpp
-          image: gcr.io/citric-lead-450721-v2/silk-llama.cpp:1.0.0
+          image: gcr.io/rack-lead/rack-llama.cpp:1.0.0
           ports:
             - containerPort: 3939
           env:
@@ -52,12 +52,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: silk-service
+  name: rack-service
   namespace: default
 spec:
   type: ClusterIP
   selector:
-    app: silk-app
+    app: rack-app
   ports:
     - protocol: TCP
       port: 3939

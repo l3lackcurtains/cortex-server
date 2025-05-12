@@ -14,7 +14,7 @@
     - name: Deploy Silk Deployment
       kubernetes.core.k8s:
         state: absent
-        src: ./silk-deployment.yaml
+        src: ./rack-deployment.yaml
         namespace: default
       register: silk_deployment
 

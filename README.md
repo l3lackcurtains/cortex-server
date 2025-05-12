@@ -1,23 +1,23 @@
 ### Kubernetes Deployment files
 
-- `silk-deployment.yaml` - Deployment file for the Cortex container
-- `silk-service.yaml` - Service file for the Cortex container
+- `rack-deployment.yaml` - Deployment file for the Cortex container
+- `rack-service.yaml` - Service file for the Cortex container
 - `caddy-config.yaml` - Caddy configuration file
 - `caddy-deployment.yaml` - Deployment file for the Caddy container
 
 ### Push Image to GCR
 
 ```bash
-docker build -t silk-cortex .
+docker build -t rack-cortex .
 gcloud auth login
-gcloud config set project citric-lead-450721-v2
+gcloud config set project rack-lead
 gcloud auth configure-docker
 # Login to GCR
 docker login gcr.io
 # Tag the image
-docker tag silk-cortex gcr.io/citric-lead-450721-v2/silk-cortex:1.0.0
+docker tag rack-cortex gcr.io/rack-lead/rack-cortex:1.0.0
 # Push the image to GCR
-docker push gcr.io/citric-lead-450721-v2/silk-cortex:1.0.0
+docker push gcr.io/rack-lead/rack-cortex:1.0.0
 ```
 
 ## Ansible Playbook
@@ -46,10 +46,10 @@ kubectl logs <pod-name>
 kubectl run -it --rm --image=nvidia/cuda:11.0-base --restart=Never cuda-test -- nvidia-smi
 
 # Check node pools
-gcloud container node-pools list --cluster silk-cluster --zone us-central1-a
+gcloud container node-pools list --cluster rack-cluster --zone us-central1-a
 
 # Check node pool status
-gcloud container node-pools describe gpu-pool --cluster silk-cluster --zone us-central1-a
+gcloud container node-pools describe gpu-pool --cluster rack-cluster --zone us-central1-a
 ```
 
 ### Sync paperspace

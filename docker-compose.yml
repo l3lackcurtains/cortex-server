@@ -2,7 +2,7 @@ services:
   llama.cpp:
     expose:
       - 5555
-    image: gcr.io/citric-lead-450721-v2/silk-llama.cpp:1.0.0
+    image: gcr.io/rack-lead/rack-llama.cpp:1.0.0
     environment:
       LLAMA_ARG_HOST: 0.0.0.0
       LLAMA_ARG_PORT: 5555
