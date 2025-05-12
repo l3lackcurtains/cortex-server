@@ -17,7 +17,7 @@ RUN cortex start
 RUN cortex engines install llama-cpp
 
 # Import the model
-RUN cortex models import --model_id netvrkai-8b --model_path /root/cortexcpp/custom_models/netvrkai-8b.gguf
+RUN cortex models import --model_id rackai-8b --model_path /root/cortexcpp/custom_models/rackai-8b.gguf
 
 EXPOSE 39281
 

@@ -4,7 +4,7 @@ metadata:
   name: caddy-config
 data:
   Caddyfile: |
-    llm1.netvrk.co {
+    llm1.rack.co {
         reverse_proxy rack-service:3939
         tls {
             issuer acme

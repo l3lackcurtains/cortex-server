@@ -51,9 +51,3 @@ gcloud container node-pools list --cluster rack-cluster --zone us-central1-a
 # Check node pool status
 gcloud container node-pools describe gpu-pool --cluster rack-cluster --zone us-central1-a
 ```
-
-### Sync paperspace
-
-```bash
-rsync -avzP -e "ssh -i ~/.ssh/id_paperspace" /mnt/c/Users/raz0r/Desktop/projects/NetVrk/AI/server paperspace@184.105.106.195://home/paperspace/
-```

@@ -6,7 +6,7 @@ services:
     environment:
       LLAMA_ARG_HOST: 0.0.0.0
       LLAMA_ARG_PORT: 5555
-      LLAMA_ARG_MODEL: /models/netvrkai-8b.gguf
+      LLAMA_ARG_MODEL: /models/rackai-8b.gguf
       LLAMA_ARG_CTX_SIZE: 32768
       LLAMA_ARG_N_PARALLEL: 12
       LLAMA_ARG_N_GPU_LAYERS: 99

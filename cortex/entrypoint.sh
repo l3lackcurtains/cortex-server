@@ -15,14 +15,14 @@ done
 # Load the engine
 curl --request POST --url http://0.0.0.0:39281/v1/engines/llama-cpp/load
 
-cortex models import --model_id netvrkai-8b --model_path /root/cortexcpp/custom_models/netvrkai-8b.gguf
+cortex models import --model_id rackai-8b --model_path /root/cortexcpp/custom_models/rackai-8b.gguf
 
 # Start the model
 curl --request POST \
   --url http://0.0.0.0:39281/v1/models/start \
   --header 'Content-Type: application/json' \
   --data '{
-  "model": "netvrkai-8b"
+  "model": "rackai-8b"
 }'
 
 # Keep the container running by tailing the log files
